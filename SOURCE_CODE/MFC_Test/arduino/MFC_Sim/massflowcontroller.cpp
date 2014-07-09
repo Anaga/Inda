@@ -137,7 +137,8 @@ bool MassFlowController::setValvePos(const unsigned int pos)
 {
    if (pos > 100) return false;
    valvePos = pos;
-   //volFlowRate = convertValvePosToFlow();
+   volFlowRate = convertValvePosToFlow();
+   masFlowRate = convertValvePosToFlow();
    //masFlowRate = convertValvePosToMass();
    return true;
 }

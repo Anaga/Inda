@@ -158,7 +158,7 @@ void MFC_Test::testSetValvePos()
 
    pOutputCh = mfc->getVoluFlowRate();
    sTestValue = QString::fromLocal8Bit(pOutputCh);
-   //QCOMPARE(sTestValue, expectedFlowRate);
+   QCOMPARE(sTestValue, expectedFlowRate);
 
    pOutputCh = mfc->getMassFlowRate();
    sTestValue = QString::fromLocal8Bit(pOutputCh);
