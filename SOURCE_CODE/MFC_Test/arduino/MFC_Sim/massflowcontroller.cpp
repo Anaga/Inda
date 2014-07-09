@@ -72,6 +72,8 @@ MassFlowController::MassFlowController()
    gasName[1] = 'i';
    gasName[2] = 'r';
    gasName[3] = 0;
+
+   gasNumber = 0;
 }
 
 char *MassFlowController::convertIntToString(const int iVal, const outputType type)
@@ -133,19 +135,19 @@ unsigned int MassFlowController::convertValvePosToFlow()
 
 unsigned int MassFlowController::convertValvePosToMass()
 {
-   return (int) (convertValvePosToFlow() * (gas_table[gasNumber].gasDens) );
+   float gasDens = gas_table[gasNumber].gasDens;
+   int flowRate = convertValvePosToFlow() ;
+   return (int) ( flowRate* gasDens);
 }
 
 bool MassFlowController::setValvePos(const unsigned int pos)
 {
    if (pos > 100) return false;
-   qDebug() << "valvePos = " << valvePos << "volFlowRate = "<< volFlowRate<< "masFlowRate = " << masFlowRate;
+
    valvePos = pos;
    volFlowRate = convertValvePosToFlow();
-   masFlowRate = convertValvePosToFlow();
-   qDebug() << "valvePos = " << valvePos << "volFlowRate = "<< volFlowRate<< "masFlowRate = " << masFlowRate;
+   masFlowRate = convertValvePosToMass();
 
-   //masFlowRate = convertValvePosToMass();
    return true;
 }
 

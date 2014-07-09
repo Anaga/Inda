@@ -174,10 +174,10 @@ void MFC_Test::testSetValvePos_data()
 
    QTest::newRow("Set valve to -50")  << -50  << false << "+00.000" << "+00.000";
    QTest::newRow("Set valve to 150")  << 150  << false << "+00.000" << "+00.000";
- //  QTest::newRow("Set valve to 0"  )  << 0    << true  << "+00.000" << "+00.000";
- //  QTest::newRow("Set valve to 100")  << 100  << true  << "+10.000" << "+10.000";
+   QTest::newRow("Set valve to 0"  )  << 0    << true  << "+00.000" << "+00.000";
+   QTest::newRow("Set valve to 100")  << 100  << true  << "+10.000" << "+10.000";
    QTest::newRow("Set valve to 50")   << 50   << true  << "+05.000" << "+05.000";
-   QTest::newRow("Set valve to 150")  << 150  << false << "+00.000" << "+00.000";
+
 }
 
 QTEST_APPLESS_MAIN(MFC_Test)
