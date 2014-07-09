@@ -6,6 +6,9 @@
 #include <math.h>
 
 
+#include <QtDebug>
+
+
 /***** Alicat Standard Gas Select List **********
 //
 //
@@ -125,7 +128,7 @@ bool MassFlowController::setSetPoint(const char *input, const int length)
 
 unsigned int MassFlowController::convertValvePosToFlow()
 {
-   return ( ( maxVolFlowRate * valvePos ) / 100 );
+   return ( ( maxVolFlowRate * valvePos )*10 );
 }
 
 unsigned int MassFlowController::convertValvePosToMass()
@@ -136,9 +139,12 @@ unsigned int MassFlowController::convertValvePosToMass()
 bool MassFlowController::setValvePos(const unsigned int pos)
 {
    if (pos > 100) return false;
+   qDebug() << "valvePos = " << valvePos << "volFlowRate = "<< volFlowRate<< "masFlowRate = " << masFlowRate;
    valvePos = pos;
    volFlowRate = convertValvePosToFlow();
    masFlowRate = convertValvePosToFlow();
+   qDebug() << "valvePos = " << valvePos << "volFlowRate = "<< volFlowRate<< "masFlowRate = " << masFlowRate;
+
    //masFlowRate = convertValvePosToMass();
    return true;
 }
