@@ -54,6 +54,8 @@ const gasTable gas_table[] =
    {5  , "C2H6", 1.28},
 };
 
+#define GAS_TABLE_LENGTH (sizeof(gas_table) / sizeof(gasTable))
+
 MassFlowController::MassFlowController()
 {
    maxVolFlowRate = 10;
@@ -150,4 +152,16 @@ bool MassFlowController::setValvePos(const unsigned int pos)
 
    return true;
 }
+
+
+bool MassFlowController::setGasNumber(const unsigned int gasNewNumber)
+{
+   if (gasNewNumber >= GAS_TABLE_LENGTH) return false;
+   gasNumber = gasNewNumber;
+   sprintf(gasName, "%s", gas_table[gasNumber].gasName);
+   masFlowRate = convertValvePosToMass();
+
+   return true;
+}
+
 

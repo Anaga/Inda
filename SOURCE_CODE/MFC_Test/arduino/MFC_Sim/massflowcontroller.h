@@ -47,6 +47,8 @@ public:
 
    bool setSetPoint (const char * input, const int length);
    bool setValvePos (const unsigned int pos);
+   bool setGasNumber (const unsigned int gasNewNumber);
+
 
 private:
    char * convertIntToString(const int iVal, const outputType type);

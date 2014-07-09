@@ -21,6 +21,10 @@ private Q_SLOTS:
 
    void testSetValvePos();
    void testSetValvePos_data();
+
+   void testSetGasNumber();
+   void testSetGasNumber_data();
+
 };
 
 MFC_Test::MFC_Test()
@@ -172,12 +176,63 @@ void MFC_Test::testSetValvePos_data()
    QTest::addColumn<QString>("expectedFlowRate");
    QTest::addColumn<QString>("expectedMassRate");
 
-   QTest::newRow("Set valve to -50")  << -50  << false << "+00.000" << "+00.000";
-   QTest::newRow("Set valve to 150")  << 150  << false << "+00.000" << "+00.000";
-   QTest::newRow("Set valve to 0"  )  << 0    << true  << "+00.000" << "+00.000";
-   QTest::newRow("Set valve to 100")  << 100  << true  << "+10.000" << "+10.000";
-   QTest::newRow("Set valve to 50")   << 50   << true  << "+05.000" << "+05.000";
+   QTest::newRow("Set valve to -50%")  << -50  << false << "+00.000" << "+00.000";
+   QTest::newRow("Set valve to 150%")  << 150  << false << "+00.000" << "+00.000";
+   QTest::newRow("Set valve to 0%"  )  << 0    << true  << "+00.000" << "+00.000";
+   QTest::newRow("Set valve to 100%")  << 100  << true  << "+10.000" << "+10.000";
+   QTest::newRow("Set valve to 50%")   << 50   << true  << "+05.000" << "+05.000";
+   QTest::newRow("Set valve to 5%")    << 5    << true  << "+00.500" << "+00.500";
 
+}
+
+void MFC_Test::testSetGasNumber()
+{
+   QString sTestValue;
+   char *pOutputCh = NULL;
+   bool retVal;
+
+   QFETCH(int, inputValue);
+   QFETCH(bool, expectedBool);
+   QFETCH(QString, expectedGasName);
+   QFETCH(int, inputValvePos);
+   QFETCH(QString, expectedFlowRate);
+   QFETCH(QString, expectedMassRate);
+
+   retVal = mfc->setGasNumber(inputValue);
+   QCOMPARE(retVal, expectedBool);
+
+   pOutputCh = mfc->getGasName();
+   sTestValue = QString::fromLocal8Bit(pOutputCh);
+   QCOMPARE(sTestValue, expectedGasName);
+
+
+   retVal = mfc->setValvePos(inputValvePos);
+
+   pOutputCh = mfc->getVoluFlowRate();
+   sTestValue = QString::fromLocal8Bit(pOutputCh);
+   QCOMPARE(sTestValue, expectedFlowRate);
+
+   pOutputCh = mfc->getMassFlowRate();
+   sTestValue = QString::fromLocal8Bit(pOutputCh);
+   QCOMPARE(sTestValue, expectedMassRate);
+}
+
+void MFC_Test::testSetGasNumber_data()
+{
+   QTest::addColumn<int>("inputValue");
+   QTest::addColumn<bool>("expectedBool");
+   QTest::addColumn<QString>("expectedGasName");
+   QTest::addColumn<int>("inputValvePos");
+   QTest::addColumn<QString>("expectedFlowRate");
+   QTest::addColumn<QString>("expectedMassRate");
+
+   QTest::newRow("Set gas to Air, valve to 0%"  )  << 0  << true  << "Air" << 0 <<"+00.000" << "+00.000";
+
+   QTest::newRow("Set gas to 6, valve to 10%"  )   << 6 << false  << "Air" << 10 <<"+01.000" << "+01.000";
+
+   /* {5  , "C2H6", 1.28}, */
+   QTest::newRow("Set gas to C2H6, valve to 0%"  )  << 5 << true  << "C2H6" << 0  <<"+00.000" << "+00.000";
+   QTest::newRow("Set gas to C2H6, valve to 10%"  ) << 5 << true  << "C2H6" << 10 <<"+01.000" << "+01.279";
 }
 
 QTEST_APPLESS_MAIN(MFC_Test)
