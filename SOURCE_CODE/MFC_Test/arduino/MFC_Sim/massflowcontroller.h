@@ -15,7 +15,6 @@ enum outputType {
 };
 
 typedef struct {
-   unsigned int  gasNumber;
    char gasName[MAX_GAS_NAME_LENGTH];
    float gasDens;
 } gasTable ;
@@ -45,9 +44,15 @@ public:
    char * getDeviceId()    { return deviceId;    }
    char * getGasName()     { return gasName;     }
 
+
+   bool setPresure (const char * input, const int length);
+   bool setTemp (const char * input, const int length);
    bool setSetPoint (const char * input, const int length);
-   bool setValvePos (const unsigned int pos);
+
+   bool setValvePos (const unsigned int pos);   
    bool setGasNumber (const unsigned int gasNewNumber);
+
+   bool setDeviceId (const char newDevId);
 
 
 private:
@@ -62,9 +67,6 @@ private:
    bool isCharNotDigit(const char ch) { return (!isCharDigit(ch)); }
    unsigned int convertValvePosToFlow(void);
    unsigned int convertValvePosToMass(void);
-
-
 };
-
 
 #endif // MASSFLOWCONTROLLER_H

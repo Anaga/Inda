@@ -30,6 +30,12 @@ DISP_CLS, DISP_DIN, DISP_DC, DISP_CE, DISP_RST);
 int const CENTR_X = (display.width() / 2);
 int const CENTR_Y = (display.height() / 2);
 
+// pin A3 - Valve POS
+#define VALVE_POS A3
+
+// pin 13 - Buildin LED
+#define LED 13
+
 MassFlowController * mfc;
 
 void setup()   {  
@@ -50,34 +56,64 @@ void setup()   {
   display.setCursor(0,0);
   
   mfc = new MassFlowController;
-
+  mfc->setDeviceId('C');
+  mfc->setGasNumber(5);
+  mfc->setPresure("14.21", 6);
+  mfc->setSetPoint("3.04",5);
+  mfc->setTemp("30.02", 5);
 }
 
 void loop() {
+   readInput();
    showDisplay();
+   showOutput();
 }
 
 void showDisplay(){
 
-   display.setCursor(-10,0);
+   display.setCursor(0,0);
+   display.print("Pres ");
    display.print(mfc->getPresure());
+   display.print(" ");
+   display.print(mfc->getDeviceId());
 
-   display.setCursor(CENTR_X,0);
-   display.print(mfc->getTemp());
-
-   display.setCursor(0,CENTR_Y);
+   display.setCursor(0,10);
+   display.print("SP ");
    display.print(mfc->getSetPoint());
 
-   display.setCursor(CENTR_X,CENTR_Y);
+   display.setCursor(CENTR_X+15,10);
    display.print(mfc->getGasName());
 
-   display.setCursor(CENTR_X*2-10,0);
+   display.setCursor(0,20);
+   display.print("VFR ");
    display.print(mfc->getVoluFlowRate());
 
-   display.setCursor(CENTR_X*2-10,CENTR_Y);
+   display.setCursor(0,30);
+   display.print("MFR ");
    display.print(mfc->getMassFlowRate());
 
+   display.setCursor(0,40);
+   display.print("Temerat");
+   display.print(mfc->getTemp());
    display.display();
    delay(200);
    display.clearDisplay();   // clears the screen and buffer
+}
+
+void readInput(){
+   int rawInputValue;
+   rawInputValue = analogRead(VALVE_POS);
+   unsigned int valvePos = map(rawInputValue, 0, 1023, 0, 100);
+   mfc->setValvePos(valvePos);
+}
+
+void showOutput(){
+   digitalWrite(LED, LOW);
+   char setPoint = mfc->getSetPoint()[0];
+   char volumePoint = mfc->getVoluFlowRate()[2];
+
+   if (setPoint == volumePoint){
+      digitalWrite(LED, HIGH);
+   }
+
 }

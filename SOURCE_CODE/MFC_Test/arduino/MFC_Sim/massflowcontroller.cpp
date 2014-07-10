@@ -6,9 +6,6 @@
 #include <math.h>
 
 
-#include <QtDebug>
-
-
 /***** Alicat Standard Gas Select List **********
 //
 //
@@ -46,12 +43,15 @@
 
 const gasTable gas_table[] =
 {
-   {0  , "Air" , 1.0},
-   {1  , "Ar"  , 1.784},
-   {2  , "CH4" , 0.7168},
-   {3  , "CO"  , 0.301},
-   {4  , "CO2" , 1.9768},
-   {5  , "C2H6", 1.28},
+   {"Air" , 1.0},
+   {"Ar"  , 1.784},
+   {"CH4" , 0.7168},
+   {"CO"  , 0.301},
+   {"CO2" , 1.9768},
+   {"C2H6", 1.28},
+   {"H2"  , 0.089},
+   {"He"  , 0.147},
+   {"N2"  , 1.251},
 };
 
 #define GAS_TABLE_LENGTH (sizeof(gas_table) / sizeof(gasTable))
@@ -153,7 +153,6 @@ bool MassFlowController::setValvePos(const unsigned int pos)
    return true;
 }
 
-
 bool MassFlowController::setGasNumber(const unsigned int gasNewNumber)
 {
    if (gasNewNumber >= GAS_TABLE_LENGTH) return false;
@@ -164,4 +163,52 @@ bool MassFlowController::setGasNumber(const unsigned int gasNewNumber)
    return true;
 }
 
+bool MassFlowController::setDeviceId(const char newDevId)
+{
+   if (newDevId < 'A') return false;
+   if (newDevId > 'Z') return false;
+   deviceId[0] = newDevId;
+   return true;
+}
+
+bool MassFlowController::setPresure(const char *input, const int length)
+{
+   if ( length > 6) return false;
+   if ( isCharNotDigit(input[0])) return false;
+   if ( isCharNotDigit(input[1])) return false;
+   if ( input[2] != '.') return false;
+   if ( isCharNotDigit(input[3])) return false;
+   if ( isCharNotDigit(input[4])) return false;
+   if ( input[5] != 0) return false;
+
+   int  intPart;
+   int  devPart;
+
+   intPart = (input[0] - '0') * 10 + (input[1] - '0');
+   devPart = (input[3] - '0') * 10 + (input[4] - '0');
+
+   presure = intPart*100 + devPart;
+
+   return true;
+}
+
+bool MassFlowController::setTemp(const char *input, const int length)
+{
+   if ( length > 6) return false;
+   if ( isCharNotDigit(input[0])) return false;
+   if ( isCharNotDigit(input[1])) return false;
+   if ( input[2] != '.') return false;
+   if ( isCharNotDigit(input[3])) return false;
+   if ( isCharNotDigit(input[4])) return false;
+   if ( input[5] != 0) return false;
+
+   int  intPart;
+   int  devPart;
+
+   intPart = (input[0] - '0') * 10 + (input[1] - '0');
+   devPart = (input[3] - '0') * 10 + (input[4] - '0');
+
+   temp = intPart*100 + devPart;
+   return true;
+}
 

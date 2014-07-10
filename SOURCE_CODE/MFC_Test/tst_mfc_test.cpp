@@ -25,6 +25,16 @@ private Q_SLOTS:
    void testSetGasNumber();
    void testSetGasNumber_data();
 
+   void testSetDeviceId();
+   void testSetDeviceId_data();
+
+   void testSetTemp();
+   void testSetTemp_data();
+
+   void testSetPresure();
+   void testSetPresure_data();
+
+
 };
 
 MFC_Test::MFC_Test()
@@ -228,12 +238,128 @@ void MFC_Test::testSetGasNumber_data()
 
    QTest::newRow("Set gas to Air, valve to 0%"  )  << 0  << true  << "Air" << 0 <<"+00.000" << "+00.000";
 
-   QTest::newRow("Set gas to 6, valve to 10%"  )   << 6 << false  << "Air" << 10 <<"+01.000" << "+01.000";
-
-   /* {5  , "C2H6", 1.28}, */
    QTest::newRow("Set gas to C2H6, valve to 0%"  )  << 5 << true  << "C2H6" << 0  <<"+00.000" << "+00.000";
    QTest::newRow("Set gas to C2H6, valve to 10%"  ) << 5 << true  << "C2H6" << 10 <<"+01.000" << "+01.279";
+
+   QTest::newRow("Set gas to Argon, valve the same") << 1 << true  << "Ar"   << 10 <<"+01.000" << "+01.784";
+   QTest::newRow("Set gas to Methane"              ) << 2 << true  << "CH4"  << 10 <<"+01.000" << "+00.716";
+   QTest::newRow("Set gas to Carbon Monoxide"      ) << 3 << true  << "CO"   << 10 <<"+01.000" << "+00.300";
+   QTest::newRow("Set gas to Carbon Dioxide"       ) << 4 << true  << "CO2"  << 10 <<"+01.000" << "+01.976";
+   QTest::newRow("Set gas to Ethane"               ) << 5 << true  << "C2H6" << 10 <<"+01.000" << "+01.279";
+   QTest::newRow("Set gas to Hydrogen"             ) << 6 << true  << "H2"   << 10 <<"+01.000" << "+00.089";
+   QTest::newRow("Set gas to Helium"               ) << 7 << true  << "He"   << 10 <<"+01.000" << "+00.146";
+   QTest::newRow("Set gas to Nitrogen"             ) << 8 << true  << "N2"   << 10 <<"+01.000" << "+01.251";
+
+   QTest::newRow("Set gas to outside of table"     ) << 9 << false << "N2"   << 10 <<"+01.000" << "+01.251";
+
 }
+
+void MFC_Test::testSetDeviceId()
+{
+   QString sTestValue;
+   char *pOutputCh = NULL;
+   bool retVal;
+
+   QFETCH(char, newDevId);
+   QFETCH(bool, expectedBool);
+   QFETCH(QString, expectedDeviceId);
+
+   retVal = mfc->setDeviceId(newDevId);
+   QCOMPARE(retVal, expectedBool);
+
+   pOutputCh = mfc->getDeviceId();
+   sTestValue = QString::fromLocal8Bit(pOutputCh);
+   QCOMPARE(sTestValue, expectedDeviceId);
+}
+
+void MFC_Test::testSetDeviceId_data()
+{
+   QTest::addColumn<char>("newDevId");
+   QTest::addColumn<bool>("expectedBool");
+   QTest::addColumn<QString>("expectedDeviceId");
+
+   QTest::newRow("Set deviceId to A")  << 'A'  << true  << "A";
+   QTest::newRow("Set deviceId to 1")  << '1'  << false << "A";
+   QTest::newRow("Set deviceId to a")  << 'a'  << false << "A";
+   QTest::newRow("Set deviceId to B")  << 'B'  << true  << "B";
+   QTest::newRow("Set deviceId to H")  << 'H'  << true  << "H";
+   QTest::newRow("Set deviceId to N")  << 'N'  << true  << "N";
+}
+
+void MFC_Test::testSetTemp()
+{
+   QString sTestValue;
+   char *pOutputCh = NULL;
+   char *pInputCh = NULL;
+   bool retVal;
+
+   QFETCH(QString, newTemp);
+   QFETCH(bool, expectedBool);
+   QFETCH(QString, expectedTemp);
+
+   pInputCh = newTemp.toLocal8Bit().data();
+
+   retVal = mfc->setTemp(pInputCh,newTemp.length());
+   QCOMPARE(retVal, expectedBool);
+
+   pOutputCh = mfc->getTemp();
+   sTestValue = QString::fromLocal8Bit(pOutputCh);
+   QCOMPARE(sTestValue, expectedTemp);
+}
+
+void MFC_Test::testSetTemp_data()
+{
+   QTest::addColumn<QString>("newTemp");
+   QTest::addColumn<bool>("expectedBool");
+   QTest::addColumn<QString>("expectedTemp");
+
+   QTest::newRow("Set newTemp to 0.0")  << "00.00"  << true  << "+000.00";
+
+   QTest::newRow("Set newTemp to AB.BC")  << "AB.BC" << false<< "+000.00";
+   QTest::newRow("Set newTemp to 0")      << "00.00" << true << "+000.00";
+   QTest::newRow("Set newTemp to 0.04")   << "00.04" << true << "+000.04";
+   QTest::newRow("Set newTemp to 4.54")   << "04.54" << true << "+004.54";
+   QTest::newRow("Set newTemp to 4.5")    << "04.5"  << false<< "+004.54";
+   QTest::newRow("Set newTemp to 14.1")   << "14.10" << true << "+014.10";
+}
+
+void MFC_Test::testSetPresure()
+{
+   QString sTestValue;
+   char *pOutputCh = NULL;
+   char *pInputCh = NULL;
+   bool retVal;
+
+   QFETCH(QString, newPresure);
+   QFETCH(bool, expectedBool);
+   QFETCH(QString, expectedPresure);
+
+   pInputCh = newPresure.toLocal8Bit().data();
+
+   retVal = mfc->setPresure(pInputCh,newPresure.length());
+   QCOMPARE(retVal, expectedBool);
+
+   pOutputCh = mfc->getPresure();
+   sTestValue = QString::fromLocal8Bit(pOutputCh);
+   QCOMPARE(sTestValue, expectedPresure);
+}
+
+void MFC_Test::testSetPresure_data()
+{
+   QTest::addColumn<QString>("newPresure");
+   QTest::addColumn<bool>("expectedBool");
+   QTest::addColumn<QString>("expectedPresure");
+
+   QTest::newRow("Set newPresure to 0.0")  << "00.00"  << true  << "+000.00";
+
+   QTest::newRow("Set newPresure to AB.BC")  << "AB.BC" << false<< "+000.00";
+   QTest::newRow("Set newPresure to 0")      << "00.00" << true << "+000.00";
+   QTest::newRow("Set newPresure to 0.04")   << "00.04" << true << "+000.04";
+   QTest::newRow("Set newPresure to 4.54")   << "04.54" << true << "+004.54";
+   QTest::newRow("Set newPresure to 14.05")  << "14.05" << true << "+014.05";
+   QTest::newRow("Set newPresure to 43.21")  << "43.21" << true << "+043.21";
+}
+
 
 QTEST_APPLESS_MAIN(MFC_Test)
 
