@@ -69,4 +69,25 @@ private:
    unsigned int convertValvePosToMass(void);
 };
 
+class ComunicParser{
+
+   MassFlowController * mfc;
+
+   char inputputRow[MAX_ROW_LENGTH];
+   char outputRow  [MAX_ROW_LENGTH];
+
+
+
+public:
+   ComunicParser();
+
+   char * getOutputRow() { return outputRow; }
+   bool setController (MassFlowController * inputMfc) { mfc = inputMfc; return true;}
+   bool parseInputRow(const char * input, const int length);
+
+
+};
+
+
+
 #endif // MASSFLOWCONTROLLER_H

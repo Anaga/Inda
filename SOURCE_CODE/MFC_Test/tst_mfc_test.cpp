@@ -9,6 +9,7 @@ class MFC_Test : public QObject
 public:
    MFC_Test();
    MassFlowController * mfc;
+   ComunicParser * comPar;
 
 private Q_SLOTS:
    void initTestCase();
@@ -34,7 +35,12 @@ private Q_SLOTS:
    void testSetPresure();
    void testSetPresure_data();
 
-
+ /**
+  * comunication parser
+  *
+  */
+   void testSetStatusRequest();
+   void testSetStatusRequest_data();
 };
 
 MFC_Test::MFC_Test()
@@ -44,13 +50,22 @@ MFC_Test::MFC_Test()
 void MFC_Test::initTestCase()
 {
    mfc = NULL;
+   comPar = NULL;
    qDebug() << "Try to create MassFlowController object";
    mfc = new MassFlowController;
    QVERIFY (mfc!=NULL);
+
+   qDebug() << "Try to create ComunicParser object";
+   comPar = new ComunicParser;
+   QVERIFY (comPar!=NULL);
+   comPar->setController(mfc);
 }
 
 void MFC_Test::cleanupTestCase()
 {
+   qDebug() << "Delete ComunicParser object";
+   delete comPar;
+
    qDebug() << "Delete MassFlowController object";
    delete mfc;
 }
@@ -358,6 +373,37 @@ void MFC_Test::testSetPresure_data()
    QTest::newRow("Set newPresure to 4.54")   << "04.54" << true << "+004.54";
    QTest::newRow("Set newPresure to 14.05")  << "14.05" << true << "+014.05";
    QTest::newRow("Set newPresure to 43.21")  << "43.21" << true << "+043.21";
+}
+
+void MFC_Test::testSetStatusRequest()
+{
+    QString sTestValue;
+    char *pOutputCh = NULL;
+    char *pInputCh = NULL;
+    bool retVal;
+
+    QFETCH(QString, newInputValue);
+    QFETCH(bool, expectedBool);
+    QFETCH(QString, expectedValue);
+
+    pInputCh = newInputValue.toLocal8Bit().data();
+    retVal = comPar->parseInputRow(pInputCh, newInputValue.length());
+    QCOMPARE(retVal, expectedBool);
+
+    pOutputCh = comPar->getOutputRow();
+    sTestValue = QString::fromLocal8Bit(pOutputCh);
+    QCOMPARE(sTestValue, expectedValue);
+}
+
+void MFC_Test::testSetStatusRequest_data()
+{
+    QTest::addColumn<QString>("newInputValue");
+    QTest::addColumn<bool>("expectedBool");
+    QTest::addColumn<QString>("expectedValue");
+
+    QTest::newRow("Set input to com parser to long string")  << "00.00aaadgshrthrgbsfghwrtbdfbthrtyrtyue5uethye"  << false  << "";
+    QTest::newRow("Set input to com parser to 'A'")  << "A"  << false << "";
+    QTest::newRow("Set input to com parser to 'N'")  << "N"  << true  << "N N2 +01.251 +043.21 4.540 +014.10 +01.000";
 }
 
 

@@ -212,3 +212,28 @@ bool MassFlowController::setTemp(const char *input, const int length)
    return true;
 }
 
+ComunicParser::ComunicParser()
+{
+    inputputRow[0] = 0;
+    outputRow[0] = 0;
+    mfc = NULL;
+}
+
+bool ComunicParser::parseInputRow(const char *input, const int length)
+{
+   if (length >= MAX_ROW_LENGTH) return false;
+
+   outputRow[0] = 0;
+
+   if ((length == 1) && (input[0] == mfc->getDeviceId()[0])){
+       sprintf(outputRow, "%s", mfc->getDeviceId());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getGasName());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getMassFlowRate());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getPresure());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getSetPoint());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getTemp());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getVoluFlowRate());
+       return true;
+   }
+   return false;
+}
