@@ -225,15 +225,38 @@ bool ComunicParser::parseInputRow(const char *input, const int length)
 
    outputRow[0] = 0;
 
-   if ((length == 1) && (input[0] == mfc->getDeviceId()[0])){
+   if (input[0] != mfc->getDeviceId()[0]) {
+       // This request is not for my Device, skip it!
+       return false;
+   }
+
+   if (length == 1) {   // Status Request
+       /*
+        * For mass flow controllers, there are six columns of data representing
+        * pressure,
+        * temperature,
+        * volumetric flow,
+        * mass flow,
+        * set-point,
+        * and the selected gas        *
+        */
+
        sprintf(outputRow, "%s", mfc->getDeviceId());
-       sprintf(outputRow, "%s %s", outputRow, mfc->getGasName());
-       sprintf(outputRow, "%s %s", outputRow, mfc->getMassFlowRate());
        sprintf(outputRow, "%s %s", outputRow, mfc->getPresure());
-       sprintf(outputRow, "%s %s", outputRow, mfc->getSetPoint());
        sprintf(outputRow, "%s %s", outputRow, mfc->getTemp());
        sprintf(outputRow, "%s %s", outputRow, mfc->getVoluFlowRate());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getMassFlowRate());       
+       sprintf(outputRow, "%s %s", outputRow, mfc->getSetPoint());
+       sprintf(outputRow, "%s %s", outputRow, mfc->getGasName());
+
        return true;
+   }
+
+   if ( (length == 6) && (input[1] == 'S')) { // Sending a Set-point via RS-232
+       for(int i=0; i<5; i++){
+           inputputRow[i] = input[i+2];
+       }
+       return mfc->setSetPoint(inputputRow, 5);
    }
    return false;
 }

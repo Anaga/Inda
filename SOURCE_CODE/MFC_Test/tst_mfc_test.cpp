@@ -35,12 +35,15 @@ private Q_SLOTS:
    void testSetPresure();
    void testSetPresure_data();
 
- /**
+ /*
   * comunication parser
-  *
   */
+
    void testSetStatusRequest();
    void testSetStatusRequest_data();
+
+   void testSetTekstSetPoint();
+   void testSetTekstSetPoint_data();
 };
 
 MFC_Test::MFC_Test()
@@ -403,7 +406,46 @@ void MFC_Test::testSetStatusRequest_data()
 
     QTest::newRow("Set input to com parser to long string")  << "00.00aaadgshrthrgbsfghwrtbdfbthrtyrtyue5uethye"  << false  << "";
     QTest::newRow("Set input to com parser to 'A'")  << "A"  << false << "";
-    QTest::newRow("Set input to com parser to 'N'")  << "N"  << true  << "N N2 +01.251 +043.21 4.540 +014.10 +01.000";
+    QTest::newRow("Set input to com parser to 'N'")  << "N"  << true  << "N +043.21 +014.10 +01.000 +01.251 4.540 N2";
+}
+
+void MFC_Test::testSetTekstSetPoint()
+{
+   QString sTestValue;
+   char *pOutputCh = NULL;
+   char *pInputCh = NULL;
+   bool retVal;
+
+   QFETCH(QString, inputValue);
+   QFETCH(bool, expectedBool);
+   QFETCH(QString, expectedValue);
+
+   pInputCh = inputValue.toLocal8Bit().data();
+
+   retVal = comPar->parseInputRow(pInputCh, inputValue.length());
+   QCOMPARE(retVal, expectedBool);
+
+   pOutputCh = mfc->getSetPoint();
+   sTestValue = QString::fromLocal8Bit(pOutputCh);
+   QCOMPARE(sTestValue, expectedValue);
+}
+
+void MFC_Test::testSetTekstSetPoint_data()
+{
+   QTest::addColumn<QString>("inputValue");
+   QTest::addColumn<bool>("expectedBool");
+   QTest::addColumn<QString>("expectedValue");
+
+   QTest::newRow("Set input to com parser to ASA.BC")  << "ASA.BC" << false<< "4.540";
+   QTest::newRow("Set input to com parser to NS0.00")  << "NS0.00" << true << "0.000";
+   QTest::newRow("Set input to com parser to NS0.04")  << "NS0.04" << true << "0.040";
+   QTest::newRow("Set input to com parser to NS4.54")  << "NS4.54" << true << "4.540";
+   QTest::newRow("Set input to com parser to BS5.67")  << "BS5.67" << false<< "4.540";
+   QTest::newRow("Set input to com parser to NS4.1x")  << "NS4.1x" << false<< "4.540";
+   QTest::newRow("Set input to com parser to NS5.67")  << "NS5.67" << true << "5.670";
+   QTest::newRow("Set input to com parser to N 1.23")  << "N 1.23" << false<< "5.670";
+   QTest::newRow("Set input to com parser to NS1.23")  << "NS1.23" << true << "1.230";
+   QTest::newRow("Set input to com parser to NS5.3")   << "NS5.3"  << false<< "1.230";
 }
 
 
