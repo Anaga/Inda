@@ -9,15 +9,15 @@
 /***** Alicat Standard Gas Select List **********
 //
 //
-//    Air      Air
-//    Ar       Argon
-//    CH4      Methane
-//    CO       Carbon Monoxide
-//    CO2      Carbon Dioxide
-//    C2H6     Ethane
-//    H2       Hydrogen
-//    He       Helium
-//    N2       Nitrogen
+// 0   Air      Air
+// 1   Ar       Argon
+// 2   CH4      Methane
+// 3   CO       Carbon Monoxide
+// 4   CO2      Carbon Dioxide
+// 5   C2H6     Ethane
+// 6   H2       Hydrogen
+// 7   He       Helium
+// 8   N2       Nitrogen
 //    N2O      Nitrous Oxide
 //    Ne       Neon
 //    O2       Oxygen
@@ -224,9 +224,12 @@ bool ComunicParser::parseInputRow(const char *input, const int length)
    if (length >= MAX_ROW_LENGTH) return false;
 
    outputRow[0] = 0;
+   char *pChar;
 
-   if (input[0] != mfc->getDeviceId()[0]) {
-       // This request is not for my Device, skip it!
+   pChar = mfc->getDeviceId();
+
+   if (input[0] != pChar[0]) {
+       // This request is not for my Device, skip it!       
        return false;
    }
 
@@ -241,7 +244,7 @@ bool ComunicParser::parseInputRow(const char *input, const int length)
         * and the selected gas        *
         */
 
-       sprintf(outputRow, "%s", mfc->getDeviceId());
+       sprintf(outputRow, "%s", pChar);
        sprintf(outputRow, "%s %s", outputRow, mfc->getPresure());
        sprintf(outputRow, "%s %s", outputRow, mfc->getTemp());
        sprintf(outputRow, "%s %s", outputRow, mfc->getVoluFlowRate());

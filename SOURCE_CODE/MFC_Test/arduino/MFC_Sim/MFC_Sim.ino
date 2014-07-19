@@ -28,7 +28,7 @@ Adafruit_PCD8544 display = Adafruit_PCD8544(
 DISP_CLS, DISP_DIN, DISP_DC, DISP_CE, DISP_RST);
 
 int const CENTR_X = (display.width() / 2);
-int const CENTR_Y = (display.height() / 2);
+//int const CENTR_Y = (display.height() / 2);
 
 // pin A3 - Valve POS
 #define VALVE_POS A3
@@ -37,9 +37,19 @@ int const CENTR_Y = (display.height() / 2);
 #define LED 13
 
 MassFlowController * mfc;
+ComunicParser * comPar;
+#define DEVICE C
+
+String inputString = "";         // a string to hold incoming data
+boolean stringComplete = false;  // whether the string is complete
+int inputStringLength = 0;
+char char_array[200];
 
 void setup()   {  
   Serial.begin(9600);  
+  // reserve 200 bytes for the inputString:
+  inputString.reserve(200);
+
   pinMode(DISP_VCC, OUTPUT);
   digitalWrite(DISP_VCC, HIGH);
   pinMode(DISP_LED, OUTPUT);
@@ -56,11 +66,24 @@ void setup()   {
   display.setCursor(0,0);
   
   mfc = new MassFlowController;
+#if DEVICE == C
   mfc->setDeviceId('C');
   mfc->setGasNumber(5);
   mfc->setPresure("14.21", 6);
   mfc->setSetPoint("3.04",5);
   mfc->setTemp("30.02", 5);
+#endif
+
+#if DEVICE
+  mfc->setDeviceId('H');
+  mfc->setGasNumber(6);
+  mfc->setPresure("15.37", 6);
+  mfc->setSetPoint("2.48",5);
+  mfc->setTemp("27.24", 5);
+#endif
+
+  comPar = new ComunicParser;
+  comPar->setController(mfc);  
 }
 
 void loop() {
@@ -101,10 +124,30 @@ void showDisplay(){
 }
 
 void readInput(){
+   bool parseOk;
    int rawInputValue;
    rawInputValue = analogRead(VALVE_POS);
    unsigned int valvePos = map(rawInputValue, 0, 1023, 0, 100);
    mfc->setValvePos(valvePos);
+
+   if (stringComplete) {
+
+     digitalWrite(LED, HIGH);
+     delay(200);
+     int str_len = inputString.length() + 1;
+     inputString.toCharArray(char_array, str_len);
+     parseOk = comPar->parseInputRow(char_array, str_len-1);
+     if (parseOk) {
+         sprintf(char_array, "%s",comPar->getOutputRow());
+         Serial.println(char_array);
+         delay(200);
+     }
+     // clear the string:
+     inputString = "";
+     stringComplete = false;
+     inputStringLength = 0;
+     digitalWrite(LED, LOW);
+   }
 }
 
 void showOutput(){
@@ -115,5 +158,18 @@ void showOutput(){
    if (setPoint == volumePoint){
       digitalWrite(LED, HIGH);
    }
-
 }
+
+void serialEvent() {
+  while (Serial.available()) {
+
+    char inChar = (char)Serial.read();
+    if (inChar == '\n') {
+      stringComplete = true;
+      return;
+    }
+    inputString += inChar;   
+  }
+}
+
+

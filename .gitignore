@@ -14,7 +14,7 @@
 *.exe
 *.Debug
 *.Release
-
+Makefile
 
 # Packages #
 ############
